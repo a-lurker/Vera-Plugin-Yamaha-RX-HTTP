@@ -1,0 +1,315 @@
+{
+    "flashicon": "https://a-lurker.github.io/icons/Yamaha_RX_50_50.png",
+    "default_icon": "https://a-lurker.github.io/icons/Yamaha_RX_50_50.png",
+    "inScene": "1",
+    "DisplayStatus": {},
+    "doc_url": {
+        "doc_language": 1,
+        "doc_manual": 1,
+        "doc_version": 1,
+        "doc_platform": 0,
+        "doc_page": "devices"
+    },
+    "Tabs": [
+        {
+            "Label": {
+                "lang_tag": "tabname_control",
+                "text": "Control"
+            },
+            "Position": "0",
+            "TabType": "flash",
+            "SceneGroup": [
+                {
+                    "id": "1",
+                    "top": "0",
+                    "left": "0",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "2",
+                    "top": "1",
+                    "left": "0",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "3",
+                    "top": "2",
+                    "left": "0",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "4",
+                    "top": "0",
+                    "left": "1",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "5",
+                    "top": "1",
+                    "left": "1",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "6",
+                    "top": "2",
+                    "left": "1",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "7",
+                    "top": "-0.9",
+                    "left": "-1.13",
+                    "x": "1",
+                    "y": "1"
+                },
+                {
+                    "id": "8",
+                    "top": "-0.4",
+                    "left": "-1.13",
+                    "x": "1",
+                    "y": "1"
+                }
+            ],
+            "ControlGroup": [
+                {
+                    "id": "1",
+                    "scenegroup": "1",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "2",
+                    "scenegroup": "2",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "3",
+                    "scenegroup": "3",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "4",
+                    "scenegroup": "4",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "5",
+                    "scenegroup": "5",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "6",
+                    "scenegroup": "6",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "7",
+                    "scenegroup": "7",
+                    "isSingle": "1"
+                },
+                {
+                    "id": "8",
+                    "scenegroup": "8",
+                    "isSingle": "1"
+                }
+            ],
+            "Control": [
+                {
+                    "ControlGroup": "1",
+                    "ControlType": "button",
+                    "Label": {
+                        "text": "Z1 Vol +5"
+                    },
+                    "Display": {
+                        "Top": 50,
+                        "Left": 50,
+                        "Width": 100,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Action": "SetVolumeUpDown",
+                        "Parameters": [
+                            {
+                                "Name": "Zone",
+                                "Value": 1
+                            },
+                            {
+                                "Name": "Step",
+                                "Value": "5"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "ControlGroup": "2",
+                    "ControlType": "button",
+                    "Label": {
+                        "text": "Z1 Vol -5"
+                    },
+                    "Display": {
+                        "Top": 75,
+                        "Left": 50,
+                        "Width": 100,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Action": "SetVolumeUpDown",
+                        "Parameters": [
+                            {
+                                "Name": "Zone",
+                                "Value": 1
+                            },
+                            {
+                                "Name": "Step",
+                                "Value": "-5"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "ControlGroup": "3",
+                    "ControlType": "button",
+                    "Label": {
+                        "text": "Z1 Mute"
+                    },
+                    "Display": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Variable": "MainZoneMute",
+                        "Value": "On",
+                        "Top": 100,
+                        "Left": 50,
+                        "Width": 100,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Action": "SetMute",
+                        "Parameters": [
+                            {
+                                "Name": "Zone",
+                                "Value": 1
+                            },
+                            {
+                                "Name": "Mute",
+                                "Value": "On/Off"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "ControlGroup": "4",
+                    "ControlType": "label",
+                    "Label": {
+                        "text": "Volume:"
+                    },
+                    "top": 0.6,
+                    "Display": {
+                        "Top": 30,
+                        "Left": 50,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlGroup": "5",
+                    "ControlType": "variable",
+                    "Display": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Variable": "MainZoneVolume",
+                        "Top": 30,
+                        "Left": 100,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "label",
+                    "Label": {
+                        "text": "Plugin Version:"
+                    },
+                    "Display": {
+                        "Top": 140,
+                        "Left": 50,
+                        "Width": 100,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "variable",
+                    "Display": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Variable": "PluginVersion",
+                        "Top": 140,
+                        "Left": 150,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "label",
+                    "Label": {
+                        "text": "Connected:"
+                    },
+                    "Display": {
+                        "Top": 155,
+                        "Left": 50,
+                        "Width": 100,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "variable",
+                    "Display": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Variable": "Connected",
+                        "Top": 155,
+                        "Left": 150,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "variable",
+                    "Display": {
+                        "Service": "urn:a-lurker-com:serviceId:YamahaRxHTTP1",
+                        "Variable": "LinkToDeviceWebPage",
+                        "Top": 180,
+                        "Left": 50,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                },
+                {
+                    "ControlType": "label",
+                    "Label": {
+                        "text": "<a href='http://vtuner.com/setupapp/guide/asp/BrowseStations/startpage.asp' target='_blank'>vTuner internet radio guide</a>"
+                    },
+                    "Display": {
+                        "Top": 195,
+                        "Left": 50,
+                        "Width": 50,
+                        "Height": 20
+                    }
+                }
+            ]
+        },
+        {
+            "Label": {
+                "lang_tag": "advanced",
+                "text": "Advanced"
+            },
+            "Position": "2",
+            "TabType": "javascript",
+            "ScriptName": "shared.js",
+            "Function": "advanced_device"
+        }
+    ],
+    "DeviceType": "urn:schemas-a-lurker-com:device:YamahaRxHTTP:1"
+}

@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+
+<specVersion>
+  <major>1</major>
+  <minor>0</minor>
+</specVersion>
+
+<serviceStateTable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Zone</name>
+  <shortCode>zone</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Source</name>
+  <shortCode>source</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Power</name>
+  <shortCode>power</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_SceneNumber</name>
+  <shortCode>sceneNumber</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Input</name>
+  <shortCode>input</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Volume</name>
+  <shortCode>volume</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Step</name>
+  <shortCode>step</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Mute</name>
+  <shortCode>mute</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Mode</name>
+  <shortCode>mode</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_Preset</name>
+  <shortCode>preset</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_LetsParty</name>
+  <shortCode>letsParty</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+  <stateVariable sendEvents="no">
+  <name>A_ARG_TYPE_RemoteCode</name>
+  <shortCode>remoteCode</shortCode>
+  <dataType>string</dataType>
+  </stateVariable>
+
+</serviceStateTable>
+
+<actionList>
+
+  <action>
+     <name>SetPower</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Power</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Power</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetScene</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>SceneNumber</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_SceneNumber</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetInput</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Input</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Input</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetVolume</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Volume</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Volume</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetVolumeUpDown</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Step</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Step</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetMute</name>
+     <argumentList>
+        <argument>
+           <name>Zone</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Zone</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Mute</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Mute</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>PlayControl</name>
+     <argumentList>
+        <argument>
+           <name>Source</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Source</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Mode</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Mode</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SelectPreset</name>
+     <argumentList>
+        <argument>
+           <name>Source</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Source</relatedStateVariable>
+        </argument>
+        <argument>
+           <name>Preset</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_Preset</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SetPartyMode</name>
+     <argumentList>
+        <argument>
+           <name>LetsParty</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_LetsParty</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+  <action>
+     <name>SendRemoteCode</name>
+     <argumentList>
+        <argument>
+           <name>RemoteCode</name>
+           <direction>in</direction>
+           <relatedStateVariable>A_ARG_TYPE_RemoteCode</relatedStateVariable>
+        </argument>
+     </argumentList>
+  </action>
+
+</actionList>
+
+</scpd>

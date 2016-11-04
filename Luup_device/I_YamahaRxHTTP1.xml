@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<implementation>
+  <files>L_YamahaRxHTTP1.lua</files>
+  <startup>luaStartUp</startup>
+
+  <actionList>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetPower</name>
+      <run>
+        setPower(lul_settings.Zone, lul_settings.Power)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetScene</name>
+      <run>
+        setScene(lul_settings.Zone, lul_settings.SceneNumber)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetInput</name>
+      <run>
+        setInput(lul_settings.Zone, lul_settings.Input)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetVolume</name>
+      <run>
+        setVolume(lul_settings.Zone, lul_settings.Volume)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetVolumeUpDown</name>
+      <run>
+        setVolumeUpDown(lul_settings.Zone, lul_settings.Step)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetMute</name>
+      <run>
+        setMute(lul_settings.Zone, lul_settings.Mute)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>PlayControl</name>
+      <run>
+        playControl(lul_settings.Source, lul_settings.Mode)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SelectPreset</name>
+      <run>
+        selectPreset(lul_settings.Source, lul_settings.Preset)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SetPartyMode</name>
+      <run>
+        setPartyMode(lul_settings.LetsParty)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:a-lurker-com:serviceId:YamahaRxHTTP1</serviceId>
+      <name>SendRemoteCode</name>
+      <run>
+        sendRemoteCode(lul_settings.RemoteCode)
+      </run>
+    </action>
+
+  </actionList>
+</implementation>
