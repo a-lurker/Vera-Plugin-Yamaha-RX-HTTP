@@ -1,4 +1,4 @@
-# <img align="left" src="https://a-lurker.github.io/icons/Yamaha_RX_50_50.png"> Vera-Plugin-Yamaha-RX
+# <img align="left" src="https://a-lurker.github.io/icons/Yamaha_RX_50_50.png"> Vera-Plugin-Yamaha-RX-HTTP
 
 Control a Yamaha AV receiver on all zones.
 
