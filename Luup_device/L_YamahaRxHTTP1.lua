@@ -1,5 +1,7 @@
 --[[
-    Written by a-lurker (c) copyright 7 Feb 2014,  XML parser by Futzle
+    Written by a-lurker (c) copyright 7 Feb 2014, XML parser by Futzle
+    Updated May  2019 to suit the RX-A2040 or similar
+    Updated Sept 2019 to suit the RX-V2075 or similar
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -19,21 +21,28 @@
 
 local PLUGIN_NAME     = 'YamahaRxHTTP'
 local PLUGIN_SID      = 'urn:a-lurker-com:serviceId:'..PLUGIN_NAME..'1'
-local PLUGIN_VERSION  = '0.55'
+local PLUGIN_VERSION  = '0.56'
 local THIS_LUL_DEVICE = nil
 
 local ipAddress = nil
 local m_Connected = false
 
--- this family uses different XML commands and is the exception to the rule
-local m_RX_V3900_family = false
+-- some AVRs do not provide the volume or mute status for Zone 4 and are therefore an exception to the rule
+local m_Status_Not_Available_For_All_Zones = false
+
+-- some AVRs use different XML commands & tags for the volume settings and are therefore an exception to the rule
+local m_AVR_Uses_Vol_Tag = false
 
 local m_ZoneCount = 1
 
--- the LuaExpat library
+-- the LuaExpat XML parsing library
 local lxp = require('lxp')
 
+local socket = require('socket')
+local http   = require('socket.http')
+local ltn12  = require('ltn12')
 
+-- don't change this, it won't do anything. Use the DebugEnabled flag instead
 local DEBUG_MODE = false
 
 local function debug(textParm, logLevel)
@@ -60,8 +69,12 @@ local function updateVariable(varK, varV, sid, id)
     if (sid == nil) then sid = PLUGIN_SID      end
     if (id  == nil) then  id = THIS_LUL_DEVICE end
 
-    if ((varK == nil) or (varV == nil)) then
-        luup.log(PLUGIN_NAME..' debug: '..'Error: updateVariable was supplied with a nil value', 1)
+    if (varV == nil) then
+        if (varK == nil) then
+            luup.log(PLUGIN_NAME..' debug: '..'Error: updateVariable was supplied with nil values', 1)
+        else
+            luup.log(PLUGIN_NAME..' debug: '..'Error: updateVariable '..tostring(varK)..' was supplied with a nil value', 1)
+        end
         return
     end
 
@@ -74,9 +87,10 @@ local function updateVariable(varK, varV, sid, id)
     end
 end
 
--- Validate the zone. The input can be:
---    1,2,3 or 4 as a string or a number
---    Main_Zone, Zone_2, Zone_3, Zone_4
+-- Validate the zone.
+--    The input can be: 1,2,3 or 4 as a string or a number
+--    Alternatively input can be: Main_Zone, Zone_2, Zone_3, Zone_4
+--    Anything else will default to Main_Zone
 --    If the equipment does not support the requested Zone: default to zone 1
 --    If the zone is nil, which is an error, then default to zone 1
 --    None of the above occurs, which is an error and will default to zone 1
@@ -141,9 +155,6 @@ The response code is the "RC" attribute in the returned XML: <YAMAHA_AV rsp="GET
 
 -- refer also to: http://w3.impa.br/~diego/software/luasocket/http.html
 local function urlRequest(request_body)
-    local ltn12 = require('ltn12')
-    local http  = require('socket.http')
-
     http.TIMEOUT = 1
 
     local response_body = {}
@@ -151,8 +162,8 @@ local function urlRequest(request_body)
     -- site not found: r is nil, c is the error status eg (as a string) 'No route to host' and h is nil
     -- site is found:  r is 1, c is the return status (as a number) and h are the returned headers in a table variable
     local r, c, h = http.request {
-          url = 'http://'..ipAddress..'/YamahaRemoteControl/ctrl',
-          method = 'POST',
+          url     = 'http://'..ipAddress..'/YamahaRemoteControl/ctrl',
+          method  = 'POST',
           headers = {
             ['Content-Type']   = 'text/xml; charset=UTF-8',
             ['Content-Length'] = string.len(request_body)
@@ -196,8 +207,8 @@ end
 --   targets: array of strings, the paths to look for.  In form "/root/element1/element2".
 -- Returns:
 --   table, keys:
---     result: function which takes an XPath that was sought (string).
---       returns an array, each element one occurrence of the xpath, contains the strings in that element.
+--   result: function which takes an XPath that was sought (string).
+--   returns an array, each element one occurrence of the xpath, contains the strings in that element.
 local function runParser(xmlSource, targets)
     local currentXpathTable = {}
 
@@ -287,8 +298,7 @@ local function parseXMLconfig(returnedXML)
 end
 
 local function parseXMLstatus(zone, returnedXML)
-
-    local zCmdStr, zVarStr = zChk(zone)
+    local zCmdStr, zVarStr, zNum = zChk(zone)
 
     -- avoid too much string duplication by defining the common path sections here first
     local XPathBranch1 = '/YAMAHA_AV/'..zCmdStr..'/Basic_Status/'
@@ -298,12 +308,34 @@ local function parseXMLstatus(zone, returnedXML)
     local volumeXP = ''
     local muteXP   = ''
 
-    -- The RX-V3900 (and other AVRs possibly?) use the tag "Vol" instead of "Volume", so flag the family:
-    local tag = returnedXML:find('Volume')
-    if (tag == nil) then m_RX_V3900_family = true end
+--[[
+    Detect a couple of exceptions here:
+
+    1) Some AVRs have no status available for the Volume or Mute on some zones. That is
+    the mute and volume cannot be controlled for that particular zone.
+    Devices known to have an uncontrollable Zone are:
+        RX-A2040 family on Zone 4
+        RX-V2075 family on Zone 4
+
+    2) Some AVRs use the XML "Vol" tag instead of "Volume". The Volume step command
+    also works differently in each case. The default for all AVRs is to use "Volume".
+    Devices known to use the "Vol" tag, rather than "Volume" tag are:
+        RX-V3900 family
+]]
+
+    local noVolumeTag = (returnedXML:find('Volume') == nil)
+    local noVolTag    = (returnedXML:find('Vol')    == nil)
+
+    if (noVolumeTag and noVolTag) then
+        m_Status_Not_Available_For_All_Zones = true
+        debug('Volume and mute status is not available for all Zones: eg Yamaha RX A2040 & RX-V2075 families and maybe others')
+    elseif (noVolumeTag) then
+        m_AVR_Uses_Vol_Tag = true
+        debug('AVR uses the Vol tag, not the Volume tag: eg Yamaha RX V3900 family and maybe others')
+    end
 
     local volumeTag = 'Volume'
-    if (m_RX_V3900_family) then volumeTag = 'Vol' end
+    if (m_AVR_Uses_Vol_Tag) then volumeTag = 'Vol' end
 
     local volumeXP = XPathBranch1..volumeTag..'/Lvl/Val'
     local muteXP   = XPathBranch1..volumeTag..'/Mute'
@@ -317,11 +349,16 @@ local function parseXMLstatus(zone, returnedXML)
     })
 
     -- get the results
-    local power  = xpathParser.result(powerXP) [1]
-    local input  = xpathParser.result(inputXP) [1]
-    local volume = xpathParser.result(volumeXP)[1]
-    local mute   = xpathParser.result(muteXP)  [1]
+    local power  = xpathParser.result(powerXP)[1]
+    local input  = xpathParser.result(inputXP)[1]
+    updateVariable(zVarStr..'Power', power)
+    updateVariable(zVarStr..'Input', input)
 
+    -- check if the volume and mute status can be
+    -- read for the current zone
+    if (m_Status_Not_Available_For_All_Zones and (zNum == 4)) then return end
+
+    local volume = xpathParser.result(volumeXP)[1]
     local volVal = tonumber(volume)
     if (volVal) then
         -- example:  -45.5 dB is expressed as -455
@@ -329,8 +366,7 @@ local function parseXMLstatus(zone, returnedXML)
         updateVariable(zVarStr..'Volume', volume)
     end
 
-    updateVariable(zVarStr..'Power', power)
-    updateVariable(zVarStr..'Input', input)
+    local mute = xpathParser.result(muteXP)[1]
     updateVariable(zVarStr..'Mute',  mute)
 end
 
@@ -377,8 +413,8 @@ end
 
 -- get the status every 30 seconds, while simultaneously
 -- checking if the network connection is still OK
--- this function needs to be global, so the timer's TimeOut can find it
-function monitor()
+-- this function needs to be global, so the timer's timeOut can find it
+function monitorYamahaRxHTTP()
     -- As soon as the link is up, the AV receiver config is
     -- retrieved and the connection status is set to true.
     -- If it goes down, the connection status is set to false
@@ -391,7 +427,7 @@ function monitor()
     for i = 1, m_ZoneCount do getZoneStatus(i) end
 
     -- get the status every 30 seconds
-    luup.call_delay('monitor', 30, '')
+    luup.call_delay('monitorYamahaRxHTTP', 30, '')
 end
 
 local function send(zone, command)
@@ -450,14 +486,14 @@ local function setVolume(zone, volume)
     volume = tostring(volume * 10.0)
 
     local command = zCmdStr..'><Volume><Lvl><Val>'..volume..'</Val><Exp>1</Exp><Unit>dB</Unit></Lvl></Volume></'..zCmdStr
-    if (m_RX_V3900_family) then
+    if (m_AVR_Uses_Vol_Tag) then
         command = zCmdStr..'><Vol><Lvl><Val>'..volume..'</Val><Exp>1</Exp><Unit>dB</Unit></Lvl></Vol></'..zCmdStr
     end
 
     send(zone, command)
 end
 
--- note that VOLFIXVAR may effect if the volume can be altered at all
+-- note that VOLFIXVAR may affect if the volume can be altered at all
 -- only increments of 0.5, 1, 2 and 5 dB are allowed
 -- generally no data is needed in the "Exp" and "Unit" tags but the tags must be present
 local function setVolumeUpDown(zone, step)
@@ -470,7 +506,9 @@ local function setVolumeUpDown(zone, step)
     local valueAbs = math.abs(step)
     if ((valueAbs ~= 5.0) and (valueAbs ~= 2.0) and (valueAbs ~= 1.0)) then step = -0.5 end
 
-    if (m_RX_V3900_family) then
+    if (m_AVR_Uses_Vol_Tag) then
+        -- Need to make use of the absolute volume levels for this family of devices.
+        -- The relative step up or down command is not available.
         local volStr = luup.variable_get(PLUGIN_SID, zVarStr..'Volume',  THIS_LUL_DEVICE)
         local volume = tonumber(volStr)
         if (volume) then
@@ -482,7 +520,7 @@ local function setVolumeUpDown(zone, step)
             send(zone, command)
         end
 
-    else
+    else -- step up or down by the step value
         local stepStr = ''
         if     (valueAbs == 5.0) then stepStr = ' 5 dB'
         elseif (valueAbs == 2.0) then stepStr = ' 2 dB'
@@ -509,7 +547,7 @@ local function setMute(zone, mute)
     mute = mute or ''
 
     local command = zCmdStr..'><Volume><Mute>'..mute..'</Mute></Volume></'..zCmdStr
-    if (m_RX_V3900_family) then
+    if (m_AVR_Uses_Vol_Tag) then
         command = zCmdStr..'><Vol><Mute>'..mute..'</Mute></Vol></'..zCmdStr
     end
 
@@ -573,10 +611,18 @@ function luaStartUp(lul_device)
     THIS_LUL_DEVICE = lul_device
     debug('luaStartUp running')
 
+    updateVariable('PluginVersion', PLUGIN_VERSION)
+
+    -- set up some defaults:
+    local debugEnabled = luup.variable_get(PLUGIN_SID, 'DebugEnabled', THIS_LUL_DEVICE)
+    if ((debugEnabled == nil) or (debugEnabled == '')) then
+        debugEnabled = '0'
+        updateVariable('DebugEnabled', debugEnabled)
+    end
+    DEBUG_MODE = (debugEnabled == '1')
+
     m_Connected = false
     updateVariable('Connected', '0')
-
-    updateVariable('PluginVersion', PLUGIN_VERSION)
 
     local ipa = luup.devices[THIS_LUL_DEVICE].ip
     ipAddress = string.match(ipa, '^(%d%d?%d?%.%d%d?%d?%.%d%d?%d?%.%d%d?%d?)')
@@ -586,9 +632,10 @@ function luaStartUp(lul_device)
     local linkToDeviceWebPage = "<a href='http://"..ipAddress.."/' target='_blank'>Yamaha Receiver web page</a>"
     updateVariable('LinkToDeviceWebPage', linkToDeviceWebPage)
 
-    monitor()
+    monitorYamahaRxHTTP()
 
-    -- required for UI7
+    -- required for UI7. UI5 uses true or false for the passed parameter.
+    -- UI7 uses 0 or 1 or 2 for the parameter. This works for both UI5 and UI7
     luup.set_failure(false)
 
     return true, 'All OK', PLUGIN_NAME
